@@ -14,8 +14,22 @@ class AudioBus {
     }
     // Stoppa qualsiasi suono in corso
     this.stop();
+    // Normalizza l'URL per GitHub Pages: se inizia con '/', prefissa con BASE_URL
+    const resolvedUrl = (() => {
+      try {
+        if (/^https?:\/\//.test(url)) return url; // URL assoluto
+        const base = import.meta.env.BASE_URL || '/';
+        // Evita doppio prefisso se già include BASE_URL
+        if (url.startsWith(base)) return url;
+        if (url.startsWith('/')) return base + url.slice(1);
+        // Percorso relativo (es. 'sounds/file.mp3') → prefissa base
+        return base + url;
+      } catch {
+        return url;
+      }
+    })();
 
-    const audio = new Audio(url);
+    const audio = new Audio(resolvedUrl);
     audio.play().catch(() => {});
     this.current = { id, audio };
     this.currentId.value = id;
